@@ -1,41 +1,20 @@
 language: cpp
-
 addons:
   apt:
     packages:
       - doxygen
-
 before_script:
-  # Building & installing gtest:
-  - CHECKOUT_DIR=$(pwd)
-  - GTEST_DIR=${CHECKOUT_DIR}/3rdparty/gtest
-  - git clone https://github.com/google/googletest.git ${GTEST_DIR}/sources
-  - mkdir ${GTEST_DIR}/build
-  - cd ${GTEST_DIR}/build
-  - cmake ${GTEST_DIR}/sources -DCMAKE_INSTALL_PREFIX=${GTEST_DIR}/install
-  - cmake --build . -- -j5
-  - cmake --build . --target install
-
+  - sudo apt-get install libboost-test-dev -y
+  - echo "deb http://archive.ubuntu.com/ubuntu xenial main universe" | sudo tee -a /etc/apt/sources.list
+  - sudo apt-get update -qq
 script:
-  - mkdir ${CHECKOUT_DIR}/build
-  - cd ${CHECKOUT_DIR}/build
-  - cmake ${CHECKOUT_DIR}/source -Dwith-tests=ON -DGTEST_ROOT=${GTEST_DIR}/install
+  - cmake .
   - cmake --build .
   - cmake --build . --target test
   - cmake --build . --target package
-  - doxygen ${CHECKOUT_DIR}/Doxyfile
-
+  - doxygen $TRAVIS_BUILD_DIR/Doxyfile
 deploy:
   provider: script
   skip_cleanup: true
   script:
     - curl -T print_ip-0.0.$TRAVIS_BUILD_NUMBER-Linux.deb -uromanovaangelina:$BINTRAY_API_KEY "https://api.bintray.com/content/romanovaangelina/OTUS/HW-3/$TRAVIS_BUILD_NUMBER/print_ip-0.0.$TRAVIS_BUILD_NUMBER-Linux.deb;deb_distribution=trusty;deb_component=main;deb_architecture=amd64;publish=1"
-  on:
-    branch: HW-3-ip-print
-      - provider: pages
-        target-branch: HW-3-ip-print-pages
-        skip_cleanup: true
-        local_dir: ${CHECKOUT_DIR}/build/html
-        github_token: $GH_REPO_TOKEN
-        on:
-          branch: homework-04
