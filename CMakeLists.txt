@@ -31,7 +31,7 @@ target_link_libraries(print_ip_cli PRIVATE
 )
 target_link_libraries(test_version
     ${Boost_LIBRARIES}
-    helloworld
+        print_ip
 )
 
 if (MSVC)
