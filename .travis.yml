@@ -1,15 +1,20 @@
 language: cpp
+addons:
+  apt:
+    packages:
+      - doxygen
 before_script:
-- sudo apt-get install libboost-test-dev -y
-- echo "deb http://archive.ubuntu.com/ubuntu xenial main universe" | sudo tee -a /etc/apt/sources.list
-- sudo apt-get update -qq
+  - sudo apt-get install libboost-test-dev -y
+  - echo "deb http://archive.ubuntu.com/ubuntu xenial main universe" | sudo tee -a /etc/apt/sources.list
+  - sudo apt-get update -qq
 script:
-- cmake .
-- cmake --build .
-- cmake --build . --target test
-- cmake --build . --target package
+  - cmake .
+  - cmake --build .
+  - cmake --build . --target test
+  - cmake --build . --target package
+  - doxygen $TRAVIS_BUILD_DIR/Doxyfile
 deploy:
   provider: script
   skip_cleanup: true
   script:
-  - curl -T helloworld-0.0.$TRAVIS_BUILD_NUMBER-Linux.deb -uromanovaangelina:5f5f68f411c9a6a030ca6f6b1f412c9f13a623fe "https://api.bintray.com/content/romaangelina/OTUS_CPP_1/$TRAVIS_BUILD_NUMBER/helloworld-0.0.$TRAVIS_BUILD_NUMBER-Linux.deb;deb_distribution=trusty;deb_component=main;deb_architecture=amd64;publish=1"
+    - curl -T sketch-0.0.$TRAVIS_BUILD_NUMBER-Linux.deb -uromanovaangelina:$BINTRAY_API_KEY "https://api.bintray.com/content/romanovaangelina/OTUS/HW-4/$TRAVIS_BUILD_NUMBER/sketch-0.0.$TRAVIS_BUILD_NUMBER-Linux.deb;deb_distribution=trusty;deb_component=main;deb_architecture=amd64;publish=1"
