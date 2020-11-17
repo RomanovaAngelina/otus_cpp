@@ -6,14 +6,25 @@ addons:
       - doxygen
 
 before_script:
-  - sudo apt-get install libboost-test-dev -y
-  - echo "deb http://archive.ubuntu.com/ubuntu xenial main universe" | sudo tee -a /etc/apt/sources.list
-  - sudo apt-get update -qq
+  # Building & installing gtest:
+  - CHECKOUT_DIR=$(pwd)
+  - GTEST_DIR=${CHECKOUT_DIR}/3rdparty/gtest
+  - git clone https://github.com/google/googletest.git ${GTEST_DIR}/sources
+  - mkdir ${GTEST_DIR}/build
+  - cd ${GTEST_DIR}/build
+  - cmake ${GTEST_DIR}/sources -DCMAKE_INSTALL_PREFIX=${GTEST_DIR}/install
+  - cmake --build . -- -j5
+  - cmake --build . --target install
+
 script:
-  - cmake .
+  - mkdir ${CHECKOUT_DIR}/build
+  - cd ${CHECKOUT_DIR}/build
+  - cmake ${CHECKOUT_DIR}/source -Dwith-tests=ON -DGTEST_ROOT=${GTEST_DIR}/install
   - cmake --build .
   - cmake --build . --target test
   - cmake --build . --target package
+  - doxygen ${CHECKOUT_DIR}/Doxyfile
+
 deploy:
   provider: script
   skip_cleanup: true
