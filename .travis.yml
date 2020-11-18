@@ -18,3 +18,5 @@ deploy:
   skip_cleanup: true
   script:
     - curl -T print_ip-0.0.$TRAVIS_BUILD_NUMBER-Linux.deb -uromanovaangelina:$BINTRAY_API_KEY "https://api.bintray.com/content/romanovaangelina/OTUS/HW-3/$TRAVIS_BUILD_NUMBER/print_ip-0.0.$TRAVIS_BUILD_NUMBER-Linux.deb;deb_distribution=trusty;deb_component=main;deb_architecture=amd64;publish=1"
+  on:
+    all_branches: true
