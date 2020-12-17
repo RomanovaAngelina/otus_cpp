@@ -1,75 +1,31 @@
-cmake_minimum_required(VERSION 3.2)
+cmake_minimum_required(VERSION 3.12)
 
-if ($ENV{TRAVIS_BUILD_NUMBER})
-    project(matrix VERSION 0.0.$ENV{TRAVIS_BUILD_NUMBER})
-else ()
-    project(matrix VERSION 0.0.1)
-endif()
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(Boost COMPONENTS unit_test_framework REQUIRED)
+if (NOT DEFINED ENV{TRAVIS_BUILD_NUMBER})
+    set(ENV{TRAVIS_BUILD_NUMBER} 1)
+endif ()
 
-configure_file(version.h.in version.h)
+project(matrix VERSION 0.0.$ENV{TRAVIS_BUILD_NUMBER} LANGUAGES CXX)
 
-add_executable(matrix_cli main.cpp)
-add_library(matrix lib.cpp)
-add_executable(autotests autotests.cpp)
+add_executable(${PROJECT_NAME} src/main.cpp)
 
-set_target_properties(matrix_cli matrix autotests PROPERTIES
-    CXX_STANDARD 14
-    CXX_STANDARD_REQUIRED ON
-)
-target_include_directories(matrix
-    PRIVATE "${CMAKE_BINARY_DIR}"
-)
-set_target_properties(autotests PROPERTIES
-    COMPILE_DEFINITIONS BOOST_TEST_DYN_LINK
-    INCLUDE_DIRECTORIES ${Boost_INCLUDE_DIR}
-)
+set(MY_INSTALL_PATH bin)
+if (NOT DEFINED ENV{CI})
+    set(MY_INSTALL_PATH ${CMAKE_CURRENT_SOURCE_DIR}/bin)
+endif ()
 
-target_link_libraries(matrix_cli PRIVATE
-        matrix
-)
-target_link_libraries(autotests
-    ${Boost_LIBRARIES}
-        matrix
-)
+install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION ${MY_INSTALL_PATH})
 
-if (MSVC)
-    target_compile_options(matrix_cli PRIVATE
-        /W4
-    )
-    target_compile_options(matrix PRIVATE
-        /W4
-    )
-    target_compile_options(autotests PRIVATE
-        /W4
-    )
-else ()
-    target_compile_options(matrix_cli PRIVATE
-        -Wall -Wextra -pedantic -Werror
-    )
-    target_compile_options(matrix PRIVATE
-        -Wall -Wextra -pedantic -Werror
-    )
-    target_compile_options(autotests PRIVATE
-        -Wall -Wextra -pedantic -Werror
-    )
-endif()
-
-
-
-install(TARGETS matrix_cli RUNTIME DESTINATION bin)
+add_subdirectory(test)
 
 set(CPACK_GENERATOR DEB)
-
 set(CPACK_PACKAGE_VERSION_MAJOR "${PROJECT_VERSION_MAJOR}")
 set(CPACK_PACKAGE_VERSION_MINOR "${PROJECT_VERSION_MINOR}")
 set(CPACK_PACKAGE_VERSION_PATCH "${PROJECT_VERSION_PATCH}")
-
-set(CPACK_PACKAGE_CONTACT example@example.com)
-
+set(CPACK_PACKAGE_CONTACT ilia64mods@gmail.com)
+set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON)
 include(CPack)
 
-enable_testing()
 
-add_test(test_version test_version)
