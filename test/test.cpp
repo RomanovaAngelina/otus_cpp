@@ -21,10 +21,6 @@ BOOST_AUTO_TEST_SUITE(project_test_suite)
 		matrix[100][100] = -1;
 		assert(matrix[100][100] == -1);
 		assert(matrix.size() == 0);
-
-		matrix(100, 100) = 314;
-		assert(matrix(100, 100) == 314);
-		assert(matrix.size() == 1);
 	}
 
 BOOST_AUTO_TEST_SUITE_END()
